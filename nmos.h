@@ -1,17 +1,19 @@
 #ifndef NMOS_H
 #define NMOS_H
 
-class NMOS {
-    private:
-        double v_G, v_D, v_S, v_B, i_D;
-        double V_TH0, lambda, gamma, phi_f;
-        double mu_n, C_ox, W, L;
 
         struct state_vars {
             double i_D;
             double v_DS;
             double v_GS;
         };
+class NMOS {
+    private:
+        double v_G, v_D, v_S, v_B, i_D;
+        double V_TH0, lambda, gamma, phi_f;
+        double mu_n, C_ox, W, L;
+
+
 
         static constexpr double zeta = 1.1;
         static constexpr double V_TH_toler_mult = 1.1; 
@@ -27,7 +29,7 @@ class NMOS {
         double compute_V_TH() const;
         double compute_K() const; 
 
-        double update_return_state_vars();
+        state_vars update_return_state_vars();
 
         void print_state_vars() const;
         void print_device_params() const;

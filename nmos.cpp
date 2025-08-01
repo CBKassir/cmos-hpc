@@ -23,7 +23,7 @@ double NMOS::compute_K() const {
 
 extern "C" double lambertw(double k);
 
-double NMOS::update_return_state_vars() {
+state_vars NMOS::update_return_state_vars() {
     /*
     Forward pass of state vars.
     Update order: i_D, v_DS, v_GS.
@@ -56,7 +56,7 @@ double NMOS::update_return_state_vars() {
         v_GS = V_TH + std::sqrt(2*i_D / (K * (1 + lambda * v_DS)));
 
     }
-
+    
     return state_vars{i_D, v_DS, v_GS};
 }
 
@@ -85,7 +85,7 @@ void NMOS::print_state_vars() const {
     std::cout << "v_D = " << v_D << " V\n";
     std::cout << "v_S = " << v_S << " V\n";
     std::cout << "v_B = " << v_B << " V\n";
-    std::cout << "V_GS = " << compute_v_GS() << " V\n";
-    std::cout << "V_DS = " << compute_v_DS() << " V\n";
-    std::cout << "I_D = " << compute_i_D() << " A\n";
+    std::cout << "V_GS = " << v_G - v_S << " V\n";
+    std::cout << "V_DS = " << v_D - v_S << " V\n";
+    std::cout << "I_D = " << i_D << " A\n";
 }
