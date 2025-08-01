@@ -10,20 +10,15 @@ NMOS::NMOS(double v_G_, double v_D_, double v_S_, double v_B_,
            double mu_n_, double C_ox_, double W_, double L_)
     : v_G(v_G_), v_D(v_D_), v_S(v_S_), v_B(v_B_), i_D(i_D_),
       V_TH0(V_TH0_), gamma(gamma_), phi_f(phi_f_), lambda(lambda_),
-      mu_n(mu_n_), C_ox(C_ox_), W(W_), L(L_) {}
-
-double NMOS::compute_V_TH() const {
-    double v_SB = v_S - v_B;
-    return V_TH0 + gamma * (std::sqrt(std::abs(v_SB + 2 * phi_f)) - std::sqrt(2 * phi_f));
-}
-
-double NMOS::compute_K() const {
-    return mu_n * C_ox * (W / L);
+      mu_n(mu_n_), C_ox(C_ox_), W(W_), L(L_)
+{
+    V_TH = V_TH0 + gamma * (std::sqrt(std::abs((v_S-v_B) + 2 * phi_f)) - std::sqrt(2 * phi_f));
+    K = mu_n * C_ox * W/L;
 }
 
 extern "C" double lambertw(double k);
 
-state_vars NMOS::update_return_state_vars() {
+NMOS::state_vars NMOS::update_return_state_vars() {
     /*
     Forward pass of state vars.
     Update order: i_D, v_DS, v_GS.
@@ -57,7 +52,7 @@ state_vars NMOS::update_return_state_vars() {
 
     }
     
-    return state_vars{i_D, v_DS, v_GS};
+    return NMOS::state_vars{i_D, v_DS, v_GS};
 }
 
 

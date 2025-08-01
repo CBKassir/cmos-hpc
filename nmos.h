@@ -2,18 +2,20 @@
 #define NMOS_H
 
 
-        struct state_vars {
-            double i_D;
-            double v_DS;
-            double v_GS;
-        };
+
 class NMOS {
     private:
         double v_G, v_D, v_S, v_B, i_D;
         double V_TH0, lambda, gamma, phi_f;
         double mu_n, C_ox, W, L;
 
+        double V_TH, K;
 
+        struct state_vars {
+            double i_D;
+            double v_DS;
+            double v_GS;
+        };
 
         static constexpr double zeta = 1.1;
         static constexpr double V_TH_toler_mult = 1.1; 
@@ -25,9 +27,6 @@ class NMOS {
             double lambda_ = 0.02,
             double mu_n_ = 450e-4, double C_ox_ = 3.45e-8,
             double W_ = 1e-4, double L_ = 1e-4);
-
-        double compute_V_TH() const;
-        double compute_K() const; 
 
         state_vars update_return_state_vars();
 
