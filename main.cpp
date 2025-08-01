@@ -2,8 +2,11 @@
 
 // * brag about : no fragmentation! because structs
 // use the saved 'C++ optimiatoina' video tools + more for the above
+// in README brag about how subthreshold calcs were tuned to be continuous with triode + desmos
+// rename V_TH_toler_mult
 
 int main() {
+    // struct for NMOS initialization paramms (double double double .... :[)
     // NOTE: in future, user specifies nodes not voltages
     // cut/tri/sat are condition variable names
     // constexpr everything

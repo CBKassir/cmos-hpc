@@ -7,18 +7,15 @@ class NMOS {
         double V_TH0, lambda, gamma, phi_f;
         double mu_n, C_ox, W, L;
 
-        // not necessary
-        enum node_index {
-            D_NODE = 0,
-            S_NODE = 1,
-            G_NODE = 2,
-            B_NODE = 3
+        struct state_vars {
+            double i_D;
+            double v_DS;
+            double v_GS;
         };
 
         static constexpr double zeta = 1.1;
         static constexpr double V_TH_toler_mult = 1.1; 
 
-    public:
         NMOS(double v_G_ = 0.0, double v_D_ = 0.0, double v_S_ = 0.0, double v_B_ = 0.0,
             double i_D_ = 0.0,
             double V_TH0_ = 0.7,
@@ -30,16 +27,13 @@ class NMOS {
         double compute_V_TH() const;
         double compute_K() const; 
 
-        double update_return_i_D();
-        double update_return_v_GS();
-        double update_return_v_DS();
+        double update_return_state_vars();
 
-        double node_current(int node) const;
-        double node_voltage(int node) const;
+        void print_state_vars() const;
+        void print_device_params() const;
 
-        void print_state_variables() const;
-        void print_device_paramters() const;
-
+    public:
+    
 };
 
 #endif
