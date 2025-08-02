@@ -1,7 +1,7 @@
 #include "nmos.h"
 
 // * brag about : no fragmentation! because structs
-// use the saved 'C++ optimiatoina' video tools + more for the above
+// use the saved 'C++ optimiatoina' video tools + more for the above --- also VALGRIND
 // in README brag about how subthreshold calcs were tuned to be continuous with triode + desmos
 // rename V_TH_toler_mult
 // brag about namespace
@@ -15,8 +15,6 @@ int main() {
     // change variable declaration order
     // compute K earlier // but perhaps not V_TH
     // design choiceS in "update_return_all" -- (a) which order for i_D v_GS v_DS (b) dynamically consider operating region for each (numerical stability here?)
-    const double VAR_INDICATOR = -1;
-
 
     return 0;
 }

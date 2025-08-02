@@ -27,8 +27,6 @@ NMOS::state_vars NMOS::update_return_state_vars() {
 
     double v_GS = v_G - v_S;
     double v_DS = v_D - v_S;
-    double V_TH = compute_V_TH();
-    double K = compute_K();
 
     double V_min_assumed = v_DS/2 + V_TH*V_TH_toler_mult; // i.e. where the exponential subthreshold current meets the triode current
 
@@ -69,8 +67,8 @@ void NMOS::print_device_params() const {
     std::cout << "mu_n = " << mu_n << " cm^2/V·s\n";
     std::cout << "C_ox = " << C_ox << " F/cm^2\n";
     std::cout << "W = " << W << " cm, L = " << L << " cm\n";
-    std::cout << "Computed K = " << compute_K() << " A/V^2\n";
-    std::cout << "Computed V_TH = " << compute_V_TH() << " V\n";
+    std::cout << "Computed K = " << K << " A/V^2\n";
+    std::cout << "Computed V_TH = " << V_TH << " V\n";
 }
 
 void NMOS::print_state_vars() const {
