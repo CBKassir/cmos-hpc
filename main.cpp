@@ -1,14 +1,13 @@
 
-
+// Why have subthreshold modeling in large-signal? For better operation at the "border"!
 // CURRENT TASK: multithread update and recompute voltage
 
+// autogen script for nmos_helper?
 // make 'double I_0, dummy;' 'V_min_assumed' one-time compile
-// showcase  namespace
 // showcase  : cache hits and branch predictiblity
-// * showcase about : no fragmentation! because structs
+// *** Find a way to showcase NO FRAGMENTATION (structs?)
 // use the saved 'C++ optimiatoina' video tools + more for the above --- also VALGRIND
 // in README showcase  how subthreshold calcs were tuned to be continuous with triode + desmos
-// USE THE NMOS namespace somewhere else!!!
 // document equations derivation in readme
 // fix function names
 // replace for loops with cool c++ alterantive?
@@ -21,6 +20,7 @@
     // change variable declaration order
     // compute K earlier // but perhaps not V_TH
 
+// autogen, but for order of state var update (i.e. i_D then v_DS then v_GS)
 
 #include "nmos.h"
 

@@ -6,67 +6,150 @@ NMOS::NMOS(double v_G_, double v_D_, double v_S_, double v_B_, double i_D_,
            double V_TH0_,
            double gamma_, double phi_f_,
            double lambda_,
-           double mu_n_, double C_ox_, double W_, double L_)
+           double mu_n_, double C_ox_, double W_, double L_,
+           bool v_GS_update_ = 1, bool v_DS_update_ = 1, bool i_D_update_ = 1
+    )
     : v_G(v_G_), v_D(v_D_), v_S(v_S_), v_B(v_B_), i_D(i_D_),
       V_TH0(V_TH0_), gamma(gamma_), phi_f(phi_f_), lambda(lambda_),
-      mu_n(mu_n_), C_ox(C_ox_), W(W_), L(L_)
+      mu_n(mu_n_), C_ox(C_ox_), W(W_), L(L_),
+      v_GS_update(v_GS_update_), v_DS_update(v_DS_update_), i_D_update(i_D_update_)
 {
     V_TH = V_TH0 + gamma * (std::sqrt(std::abs((v_S-v_B) + 2 * phi_f)) - std::sqrt(2 * phi_f));
     K = mu_n * C_ox * W/L;
+
+    int code = (v_GS_update_ << 2) | (v_DS_update << 1) | i_D_update;
+    VoidFn make_update_iD_triode();
+    VoidFn make_update_vDS_triode();
+    VoidFn make_update_vGS_triode();
+
+
+
+
+    switch (code) {
+        case 0b000:
+        update_cutoff = [this]() {
+            std::cout << "Nothing updates.\n";
+        };
+        case 0b001:
+        case 0b010:
+        case 0b011:
+        case 0b100:
+        case 0b101:
+        case 0b110:
+        case 0b111:
+    }
 }
 
 extern "C" double lambertw(double k);
 
-void NMOS::update_state_vars() {
-    /*
-    Forward pass of state vars.
-    Update order: i_D, v_DS, v_GS.
-    Each update round assumes same operating region, for numerical stability.
-    */
 
-    double V_min_assumed = v_DS/2 + V_TH*V_TH_toler_mult; // i.e. where the exponential subthreshold current meets the triode current
+NMOS::VoidFn NMOS::combine(VoidFn a, VoidFn b) {
+    if (!a) return b;
+    if (!b) return a;
+    return [a,b]() {
+        a();
+        b();
+    };
+}
 
-    double I_0, dummy;
 
-    // Cutoff
-    if (v_GS < V_min_assumed) {
-        I_0 = K*((V_min_assumed - V_TH) - 0.5 * v_DS) * v_DS / 
+NMOS::VoidFn NMOS::update_i_D_cutoff() {
+    return [this]() {
+        double V_min_assumed = v_DS/2 + V_TH*V_TH_toler_mult;
+        double I_0 = K * ((V_min_assumed - V_TH) - 0.5 * v_DS) * v_DS /
                     std::exp(V_min_assumed / (zeta * V_TH));
-        if (i_D_update) {
-            i_D = I_0 * std::exp(v_GS / (zeta * V_TH));
-        } 
-        if (v_DS_update) {
-            dummy = i_D * std::exp(V_TH_toler_mult/2) /
-                        (2*zeta*V_TH * V_TH_toler_mult*K * std::exp(v_GS/(zeta*V_TH)) * V_TH*(V_TH_toler_mult-1));
-            v_DS = -lambertw(-dummy) * 2*zeta*V_TH;
-        }   
-        if (v_GS_update) {
-            v_GS = std::log(i_D/I_0) * (zeta * V_TH);
-        }
-    // Triode
-    } else if (v_DS < (v_GS - V_TH)) {
-        if (i_D_update) {
-            i_D = K * ((v_GS - V_TH) - 0.5 * v_DS) * v_DS;
-        }
-        if (v_DS_update) {
-            v_DS = (v_GS - V_TH) - std::sqrt((v_GS - V_TH)); // take - of the +- quadratic since v_DS < (v_GS - V_TH)
-        }
-        if (v_GS_update) {
-            v_GS = (i_D/v_DS + v_DS/2 + V_TH)/K;
-        }
-    // Saturation
+        i_D = I_0 * std::exp(v_GS / (zeta * V_TH));
+    };
+}
+NMOS::VoidFn NMOS::update_v_DS_cutoff() {
+    return [this]() {
+        double dummy = i_D * std::exp(V_TH_toler_mult / 2) /
+            (2 * zeta * V_TH * V_TH_toler_mult * K *
+            std::exp(v_GS / (zeta * V_TH)) * V_TH * (V_TH_toler_mult - 1));
+        v_DS = -lambertw(-dummy) * 2 * zeta * V_TH;
+    };
+}
+NMOS::VoidFn NMOS::update_v_GS_cutoff() {
+    return [this]() {
+        double V_min_assumed = v_DS/2 + V_TH*V_TH_toler_mult;
+        double I_0 = K * ((V_min_assumed - V_TH) - 0.5 * v_DS) * v_DS /
+            std::exp(V_min_assumed / (zeta * V_TH));
+        v_GS = std::log(i_D / I_0) * (zeta * V_TH);
+    };
+}
+void NMOS::make_update_cutoff() {
+    update_cutoff = []() {};
+
+    if (i_D_update) update_cutoff = combine(update_cutoff, update_i_D_triode());
+    if (v_DS_update) update_cutoff = combine(update_cutoff, update_v_DS_triode());
+    if (v_GS_update) update_cutoff = combine(update_cutoff, update_v_GS_triode());
+}
+
+NMOS::VoidFn NMOS::update_i_D_triode() {
+    return [this]() {
+        i_D = K * ((v_GS - V_TH) - 0.5 * v_DS) * v_DS;
+    };
+}
+NMOS::VoidFn NMOS::update_v_DS_triode() {
+    return [this]() {
+        v_DS = (v_GS - V_TH) - std::sqrt(v_GS - V_TH);
+    };
+}
+NMOS::VoidFn NMOS::update_v_GS_triode() {
+    return [this]() {
+        v_GS = (i_D / v_DS + v_DS / 2 + V_TH) / K;
+    };
+}
+void NMOS::make_update_triode() {
+    update_triode = []() {};
+
+    if (i_D_update) update_triode = combine(update_triode, update_i_D_triode());
+    if (v_DS_update) update_triode = combine(update_triode, update_v_DS_triode());
+    if (v_GS_update) update_triode = combine(update_triode, update_v_GS_triode());
+}
+
+NMOS::VoidFn NMOS::update_i_D_saturation() {
+    return [this]() {
+        i_D = K * 0.5 * (v_GS - V_TH)*(v_GS - V_TH) * (1 + lambda * v_DS); 
+    };
+}
+NMOS::VoidFn NMOS::update_v_DS_saturation() {
+    return [this]() {
+        v_DS = 2 * i_D / (K * (v_GS - V_TH)*(v_GS - V_TH) * lambda) - 1/lambda;
+    };
+}
+NMOS::VoidFn NMOS::update_v_GS_saturation() {
+    return [this]() {
+        v_GS = V_TH + std::sqrt(2*i_D / (K * (1 + lambda * v_DS)));
+    };
+}
+void NMOS::make_update_saturation() {
+    update_saturation = []() {};
+
+    if (i_D_update) update_saturation = combine(update_saturation, update_i_D_saturation());
+    if (v_DS_update) update_saturation = combine(update_saturation, update_v_DS_saturation());
+    if (v_GS_update) update_saturation = combine(update_saturation, update_v_GS_saturation());
+}
+
+
+void NMOS::update_state_vars() {
+    double V_min_assumed = v_DS/2 + V_TH*V_TH_toler_mult;
+
+    if (v_GS < V_min_assumed) {
+        update_cutoff();
+    } else if (v_DS < (v_GS-V_TH)) {
+        update_triode();
     } else {
-        if (i_D_update) {
-            i_D = 0.5 * K * (v_GS - V_TH)*(v_GS - V_TH) * (1 + lambda * v_DS);
-        }
-        if (v_DS_update) {
-            v_DS = 2 * i_D / (K * (v_GS - V_TH)*(v_GS - V_TH) * lambda) - 1/lambda;
-        }
-        if (v_GS_update) {
-            v_GS = V_TH + std::sqrt(2*i_D / (K * (1 + lambda * v_DS)));
-        }
+        update_saturation();
     }
 }
+
+
+/*
+If we're just doing it all at once (simple case - i.e. no multithreading)
+then, if just one var x, we're trying to get the Dx to decrease, i.e. *** lowest possible DDx ***.
+For multiple vars xi ..., let's try to minimize the average DDxi.
+*/
 
 void NMOS::update_output_vars() {
 
@@ -80,6 +163,15 @@ void NMOS::forward_pass_iterations() {
     }
 }
 
+
+
+
+
+
+
+
+/// VERY OUTDATED
+// also why'd it auto-add "@brief"
 void NMOS::print_device_params() const {
     std::cout << "NMOS Device Parameters:\n";
     std::cout << "-------------------\n";
