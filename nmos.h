@@ -1,7 +1,7 @@
 #ifndef NMOS_H
 #define NMOS_H
 
-#include <array>
+#include <functional>
 
 class NMOS {
     private:
@@ -10,8 +10,7 @@ class NMOS {
         double mu_n, C_ox, W, L;
         double V_TH0, lambda, gamma, phi_f;
         bool v_GS_update = 1, v_DS_update = 1, i_D_update = 1;
-        std::function<void()> update_cutoff, update_triode, update_saturation;
-
+        
         double V_TH, K;
 
         NMOS(double v_G_ = 0.0, double v_D_ = 0.0, double v_S_ = 0.0, double v_B_ = 0.0,

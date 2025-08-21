@@ -154,13 +154,13 @@ void NMOS::solve_state_vars() {
 /*
 --- New plan ---
 
-New algorithm (*) for determining node voltages:
+New algorithm (*) for determining CircuitNode voltages:
 Full forward-pass, then CHECK WHICH NODES ARE KNOWN. And start from there.
 (Maybe document the failed attempt, check in Git of course)
 THIS WILL BE IN ANOTHER .CPP, since it's scope is the entire circuit
 
 Also: there will be two uses of multithreading:
-- Monte Carlo with starting node voltages
+- Monte Carlo with starting CircuitNode voltages
 - More niche: do that new algo (*) in parallel with solve_state_vars()
 
 */
