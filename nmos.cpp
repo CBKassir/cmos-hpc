@@ -144,27 +144,26 @@ void NMOS::update_state_vars() {
     }
 }
 
-
-/*
-If we're just doing it all at once (simple case - i.e. no multithreading)
-then, if just one var x, we're trying to get the Dx to decrease, i.e. *** lowest possible DDx ***.
-For multiple vars xi ..., let's try to minimize the average DDxi.
-*/
-
-void NMOS::update_output_vars() {
-
-}
-
-void NMOS::forward_pass_iterations() {
+void NMOS::solve_state_vars() {
     for (int i=0; i<MAX_FORWARD_ITERATIONS; i++) {
         update_state_vars();
-        v_GS_track[i] = v_GS;
-        v_DS_track[i] = v_DS;
     }
 }
 
 
+/*
+--- New plan ---
 
+New algorithm (*) for determining node voltages:
+Full forward-pass, then CHECK WHICH NODES ARE KNOWN. And start from there.
+(Maybe document the failed attempt, check in Git of course)
+THIS WILL BE IN ANOTHER .CPP, since it's scope is the entire circuit
+
+Also: there will be two uses of multithreading:
+- Monte Carlo with starting node voltages
+- More niche: do that new algo (*) in parallel with solve_state_vars()
+
+*/
 
 
 

@@ -50,14 +50,10 @@ class NMOS {
         static constexpr double zeta = 1.1;
         static constexpr double V_TH_toler_mult = 1.1; 
         void update_state_vars();
-
-        void update_output_vars();
-
         static constexpr int MAX_FORWARD_ITERATIONS = 5;
-        std::array<double, MAX_FORWARD_ITERATIONS> v_GS_track = {};
-        std::array<double, MAX_FORWARD_ITERATIONS> v_DS_track = {};
-        void forward_pass_iterations();
+        void solve_state_vars();
 
+        
         void print_state_vars() const;
         void print_device_params() const;
 
