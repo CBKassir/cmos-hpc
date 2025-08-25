@@ -18,7 +18,9 @@
     // change "v_DS" to "V_DS" if it's just large signal.
     // change variable declaration order
     // compute K earlier // but perhaps not V_TH
+// pass those nightmare NMOS parameters as a struct, please!
 // clean up -- add destructors and all that.
+
 
 // LOW PRIORITY:
 // autogen, but for order of state var update (i.e. i_D then v_DS then v_GS)??

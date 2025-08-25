@@ -1,6 +1,8 @@
 #ifndef NMOS_H
 #define NMOS_H
 
+#include "node.h"
+
 #include <functional>
 
 class NMOS {
@@ -12,6 +14,8 @@ class NMOS {
         bool v_GS_update = 1, v_DS_update = 1, i_D_update = 1;
         
         double V_TH, K;
+
+        Node *G, *D, *S;
 
         NMOS(double v_G_ = 0.0, double v_D_ = 0.0, double v_S_ = 0.0, double v_B_ = 0.0,
             double i_D_ = 0.0,

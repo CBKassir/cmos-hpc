@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 
+extern "C" double lambertw(double k);
+
 NMOS::NMOS(double v_G_, double v_D_, double v_S_, double v_B_, double i_D_,
            double V_TH0_,
            double gamma_, double phi_f_,
@@ -22,25 +24,8 @@ NMOS::NMOS(double v_G_, double v_D_, double v_S_, double v_B_, double i_D_,
     VoidFn make_update_vDS_triode();
     VoidFn make_update_vGS_triode();
 
-
-
-
-    switch (code) {
-        case 0b000:
-        update_cutoff = [this]() {
-            std::cout << "Nothing updates.\n";
-        };
-        case 0b001:
-        case 0b010:
-        case 0b011:
-        case 0b100:
-        case 0b101:
-        case 0b110:
-        case 0b111:
-    }
+    G = new Node();
 }
-
-extern "C" double lambertw(double k);
 
 
 NMOS::VoidFn NMOS::combine(VoidFn a, VoidFn b) {
