@@ -1,4 +1,4 @@
-# High-Performance Compute Software CMOS Mixed-Signal Design
+# Zspice : High-Performance Compute Software CMOS Mixed-Signal Design
 
 ## Notes - to be formalized
 
