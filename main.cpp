@@ -1,34 +1,39 @@
+#include <iostream>
+#include <memory>
 
-// Why have subthreshold modeling in large-signal? For better operation at the "border"!
-
-// autogen script for nmos_helper?
-// make 'double I_0, dummy;' 'V_min_assumed' one-time compile
-// showcase  : cache hits and branch predictiblity
-// *** Find a way to showcase NO FRAGMENTATION (structs?)
-// use the saved 'C++ optimiatoina' video tools + more for the above --- also VALGRIND
-// in README showcase  how subthreshold calcs were tuned to be continuous with triode + desmos
-// document equations derivation in readme
-// fix function names
-// replace for loops with cool c++ alterantive?
-// switch to clever initial guess for v_GS, v_DS 
-    // struct for NMOS initialization paramms (double double double .... :[)
-    // NOTE: in future, user specifies nodes not voltages
-    // cut/tri/sat are condition variable names
-    // constexpr everything
-    // change "v_DS" to "V_DS" if it's just large signal.
-    // change variable declaration order
-    // compute K earlier // but perhaps not V_TH
-// pass those nightmare NMOS parameters as a struct, please!
-// clean up -- add destructors and all that.
-
-
-// LOW PRIORITY:
-// autogen, but for order of state var update (i.e. i_D then v_DS then v_GS)??
-
-#include "nmos.h"
+#include "core/Circuit.hpp"
+#include "devices/Resistor.hpp"
+#include "devices/MOSFET.hpp"
+#include "analysis/DCAnalysis.hpp"
 
 int main() {
 
- 
-    return 0;
+    Circuit circuit(3);
+
+    circuit.addDevice(
+        std::make_unique<Resistor>(1,0,1000)
+    );
+
+    circuit.addDevice(
+        std::make_unique<MOSFET>(
+            1,2,0,
+            1e-4,
+            0.7,
+            0.02,
+            1.5,
+            1e-12
+        )
+    );
+
+    Eigen::VectorXd x(3);
+    x.setZero();
+
+    DCAnalysis dc(circuit);
+
+    if (!dc.run(x)) {
+        std::cout << "DC failed\n";
+        return 1;
+    }
+
+    std::cout << "DC Solution:\n" << x << "\n";
 }

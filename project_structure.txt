@@ -1,0 +1,18 @@
+cmos-hpc/
+│
+├── CMakeLists.txt
+├── main.cpp
+│
+├── core/
+│   ├── Device.hpp
+│   ├── Circuit.hpp
+│   ├── Solver.hpp
+│
+├── devices/
+│   ├── Resistor.hpp
+│   ├── Capacitor.hpp
+│   ├── MOSFET.hpp
+│
+├── analysis/
+│   ├── DCAnalysis.hpp
+│   ├── TransientAnalysis.hpp
